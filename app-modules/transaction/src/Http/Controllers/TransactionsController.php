@@ -67,7 +67,26 @@ class TransactionsController extends Controller
         } catch (Exception $e) {
             return formatAsJson(false,'Transaction failed', [],$e->getMessage(),500);
         }
+    }
 
+    public function creditReceiver(int $receiver_id,  float $transaction_amount){
+        $receiverBalance = $this->getUserById($receiver_id)->account_balance;
+        $newBalance =  $receiverBalance +  $transaction_amount;
+        $query = User::where('id',$receiver_id)->update(['account_balance' => $newBalance]);
+        if($query){
+            DB::commit();
+            return true;
+        }
+    }
+
+    public function debitSender(int $sender_id,  float $transaction_amount){
+        $senderBalance = $this->getUserById($sender_id)->account_balance;
+        $newBalance = $senderBalance -  $transaction_amount;
+        $query = User::where('id',$sender_id)->update(['account_balance' => $newBalance]);
+        if($query){
+            DB::commit();
+            return true;
+        }
     }
 
     /**
@@ -113,26 +132,6 @@ class TransactionsController extends Controller
     public function destroy($id)
     {
         //
-    }
-
-    public function creditReceiver(int $receiver_id,  float $transaction_amount){
-        $receiverBalance = $this->getUserById($receiver_id)->account_balance;
-        $newBalance =  $receiverBalance +  $transaction_amount;
-        $query = User::where('id',$receiver_id)->update(['account_balance' => $newBalance]);
-        if($query){
-            DB::commit();
-            return true;
-        }
-    }
-
-    public function debitSender(int $sender_id,  float $transaction_amount){
-        $senderBalance = $this->getUserById($sender_id)->account_balance;
-        $newBalance = $senderBalance -  $transaction_amount;
-        $query = User::where('id',$sender_id)->update(['account_balance' => $newBalance]);
-        if($query){
-            DB::commit();
-            return true;
-        }
     }
 
     public function getUserById($user_id) {
