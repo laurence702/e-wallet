@@ -48,14 +48,14 @@ class UsersController extends Controller
      */
     public function store(Request $request)
     {
-        try {
+      //  try {
             $newUser = User::create($request->all());
             if($newUser){
                 return $this->formatAsJson(true,'User was created successfully',[],'',201);
             }
-        } catch (Exception $e) {
-            return $this->formatAsJson(true,'User failed to create', [],$e->getMessage(),500);
-        }
+        // } catch (Exception $e) {
+        //     return $this->formatAsJson(true,'User failed to create', [],$e->getMessage(),500);
+        // }
 
     }
 
