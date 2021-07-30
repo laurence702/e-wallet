@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Artisan;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,6 +22,11 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 Route::get('/testAssertion', function () {
     return response()->json([
         "status"=>true,
-        'message'=>'im a tdd case',
+        'message'=>'Im a tdd case',
     ],200);
+});
+
+//This route creates the test database for the project
+Route::get('create-tests-table', function () {
+    return DB::statement('create database ledger_wallet_tests');
 });
