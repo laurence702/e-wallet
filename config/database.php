@@ -13,7 +13,9 @@ postgres://<username>:<password>@<host>:<port>/<dbname>
 */
 
 return [
-
+     
+    'default' => 'pgsql',
+    //'default' => env('DB_CONNECTION', 'mysql'),
     /*
     |--------------------------------------------------------------------------
     | Default Database Connection Name
