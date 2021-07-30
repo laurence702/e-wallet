@@ -78,7 +78,6 @@ class TransactionsController extends Controller
             return true;
         }
     }
-
     public function debitSender(int $sender_id,  float $transaction_amount){
         $senderBalance = $this->getUserById($sender_id)->account_balance;
         $newBalance = $senderBalance -  $transaction_amount;
