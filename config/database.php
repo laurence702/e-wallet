@@ -2,11 +2,11 @@
 
 use Illuminate\Support\Str;
 
-$url = parse_url(getenv("DATABASE_URL"));
-$host = !empty($url["host"]) ? $url["host"] : "";
-$username = !empty($url["user"]) ? $url["user"] : "";
-$password = !empty($url["pass"]) ? $url["pass"] : "";
-$database = substr($url["path"], 1);
+// $url = parse_url(getenv("DATABASE_URL"));
+// $host = !empty($url["host"]) ? $url["host"] : "";
+// $username = !empty($url["user"]) ? $url["user"] : "";
+// $password = !empty($url["pass"]) ? $url["pass"] : "";
+// $database = substr($url["path"], 1);
 
 /*
 postgres://<username>:<password>@<host>:<port>/<dbname>
@@ -25,8 +25,8 @@ return [
     |
     */
 
-    'default' => 'pgsql',
-    //'default' => env('DB_CONNECTION', 'mysql'),
+    //'default' => 'pgsql',
+    'default' => env('DB_CONNECTION', 'mysql'),
 
     /*
     |--------------------------------------------------------------------------
@@ -76,10 +76,10 @@ return [
 
         'pgsql' => [
             'driver' => 'pgsql',
-            'host'     => $host,
-            'database' => $database,
-            'username' => $username,
-            'password' => $password,
+            // 'host'     => $host,
+            // 'database' => $database,
+            // 'username' => $username,
+            // 'password' => $password,
             'charset' => 'utf8',
             'prefix' => '',
             'prefix_indexes' => true,
