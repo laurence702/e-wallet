@@ -22,11 +22,11 @@ class UsersController extends Controller
             }
                 $users = User::get()->load(['money_received','money_sent']);
             if(!$users){ 
-                return formatAsJson(false,'No users created','','',404); 
+                return $this->formatAsJson(false,'No users created','','',404); 
             }
-            return formatAsJson(true,'List of all users',$users,'',200);
+            return $this->formatAsJson(true,'List of all users',$users,'',200);
         } catch (Exception $e) {
-            return formatAsJson(true,'An error occurred', $e->getMessage(),'',500);
+            return $this->formatAsJson(true,'An error occurred', $e->getMessage(),'',500);
         }
     }
 
@@ -51,10 +51,10 @@ class UsersController extends Controller
         try {
             $newUser = User::create($request->all());
             if($newUser){
-                return formatAsJson(true,'User was created successfully',[],'',201);
+                return $this->formatAsJson(true,'User was created successfully',[],'',201);
             }
         } catch (Exception $e) {
-            return formatAsJson(true,'User failed to create', [],$e->getMessage(),500);
+            return $this->formatAsJson(true,'User failed to create', [],$e->getMessage(),500);
         }
 
     }
@@ -73,10 +73,10 @@ class UsersController extends Controller
             }else{
                 $users = User::get()->load(['money_received','money_sent']);
             }
-            if(!$users){ return formatAsJson(true,'No users created','','',404); }
-            return formatAsJson(true,'User found',$users,'',200);
+            if(!$users){ return $this->formatAsJson(true,'No users created','','',404); }
+            return $this->formatAsJson(true,'User found',$users,'',200);
         } catch (Exception $e) {
-            return formatAsJson(true,'An error occurred', $e->getMessage(),'',500);
+            return $this->formatAsJson(true,'An error occurred', $e->getMessage(),'',500);
         }
     }
 
@@ -113,4 +113,14 @@ class UsersController extends Controller
     {
         //
     }
+
+    public function formatAsJson($status, $message='',$data=[],$meta='',$status_code){
+        return response()->json([
+            'status'=> $status,
+            'message'=> $message,
+            'data'=> $data,
+            'meta'=>$meta
+        ],$status_code);
+    }
+    
 }

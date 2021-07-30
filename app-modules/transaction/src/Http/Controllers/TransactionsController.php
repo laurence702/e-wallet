@@ -23,11 +23,11 @@ class TransactionsController extends Controller
                 Transaction::where('status',$request->status)->get()->load(['sender','recipient']) : 
                 Transaction::get()->load(['sender','recipient']);
             if(count($transactions) == 0){ 
-                return formatAsJson(true,'No transaction created','','',404); 
+                return $this->formatAsJson(true,'No transaction created','','',404); 
             }
-            return formatAsJson(true,'List of all transactions',$transactions,'',200);
+            return $this->formatAsJson(true,'List of all transactions',$transactions,'',200);
         } catch (Exception $e) {
-            return formatAsJson(true,'An error occurred', $e->getMessage(),'',500);
+            return $this->formatAsJson(true,'An error occurred', $e->getMessage(),'',500);
         }
     }
 
@@ -51,7 +51,7 @@ class TransactionsController extends Controller
     {
        try {
            if(!$this->checkIfSenderBalanceIsSufficient($request->sender_id,$request->transaction_amount)){
-                return formatAsJson(false,'Balance is insufficient', [],'',402);
+                return $this->formatAsJson(false,'Balance is insufficient', [],'',402);
            }
             DB::beginTransaction();
             $sent = $this->debitSender($request->sender_id, $request->transaction_amount); //debit the sender
@@ -60,12 +60,12 @@ class TransactionsController extends Controller
                 $newTransaction = Transaction::create($request->all()); //then save it to transaction history
                 DB::commit();
                 if($newTransaction){
-                    return formatAsJson(true,'Successful',Transaction::latest()->first(),'',200);
+                    return $this->formatAsJson(true,'Successful',Transaction::latest()->first(),'',200);
                 }
             }
-            return formatAsJson(false,'Failed',[],'',500);
+            return $this->formatAsJson(false,'Failed',[],'',500);
         } catch (Exception $e) {
-            return formatAsJson(false,'Transaction failed', [],$e->getMessage(),500);
+            return $this->formatAsJson(false,'Transaction failed', [],$e->getMessage(),500);
         }
     }
 
@@ -149,5 +149,14 @@ class TransactionsController extends Controller
              return (bool)0;
          }
          return true;
+    }
+
+    public function formatAsJson($status, $message='',$data=[],$meta='',$status_code){
+        return response()->json([
+            'status'=> $status,
+            'message'=> $message,
+            'data'=> $data,
+            'meta'=>$meta
+        ],$status_code);
     }
 }
