@@ -20,12 +20,5 @@ class TransactionTest extends TestCase
             //-->post request create product, user etc
      //THEN : the outcome
             //-->product exists
-    public function test_example()
-    {
-        // $response = $this->json('POST','/api/v1/userss',[
-
-        // ]);
-        $response = $this->get('/api/testAssertion');
-        $response->assertStatus(200);
-    }
+       
 }

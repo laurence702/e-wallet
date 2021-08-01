@@ -6,9 +6,15 @@ use Exception;
 use Illuminate\Http\Request;
 use Modules\User\Models\User;
 use App\Http\Controllers\Controller;
+use Illuminate\Validation\Rule;
 
 class UsersController extends Controller
 {
+
+    // public $employeeServices;
+    // public function __construct(EmployeeServices $employeeServices){
+    //     $this->EmployeeServices = $employeeServices;
+    // }
     /**
      * Display a listing of the resource.
      *
@@ -20,7 +26,7 @@ class UsersController extends Controller
             if($request->has('verified')){
                 $users = User::where('verified',$request->verified)->get()->load(['money_received','money_sent']);
             }
-                $users = User::get()->load(['money_received','money_sent']);
+                $users = User::withTrashed()->get()->load(['money_received','money_sent']);
             if(!$users){ 
                 return $this->formatAsJson(false,'No users created','','',404); 
             }
@@ -48,10 +54,25 @@ class UsersController extends Controller
      */
     public function store(Request $request)
     {
+      
+        $data = $request->except(['account_balance','pin']);
+        $rules = [
+            'last_name' => 'required|min:3',
+            'first_name' => 'required|min:3',
+            'email' => 'required|unique:users',
+            'phone' => 'required|unique:users|min:8',
+        ];
+        $validator = \Validator::make($data, $rules);
+
+        if ($validator->fails()) {
+            return $this->formatAsJson(false,'Validation didnt pass',[],$validator->errors(),422);
+        }
         try {
             $newUser = User::create($request->all());
             if($newUser){
-                return $this->formatAsJson(true,'User was created successfully',[],'',201);
+                return $this->formatAsJson(true,'User was created successfully',
+                User::latest()->first(),
+                'your secret pin for transfers is: '.User::latest()->first()->pin,201);
             }
         } catch (Exception $e) {
             return $this->formatAsJson(true,'User failed to create', [],$e->getMessage(),500);
@@ -69,12 +90,13 @@ class UsersController extends Controller
     {
         try {
             if($request->has('balance')){
-                $users = User::first()->account_balance;              
+                $users = User::find((int) $id)->account_balance;              
             }else{
-                $users = User::get()->load(['money_received','money_sent']);
+                $_users = User::find((int) $id);
+                $users = $_users ? $_users->load(['money_received','money_sent']): null;
             }
-            if(!$users){ return $this->formatAsJson(true,'No users created','','',404); }
-            return $this->formatAsJson(true,'User found',$users,'',200);
+            if(!$users || $users == null){ return $this->formatAsJson(true,'User not found','','',404); }
+            return $this->formatAsJson(true,'User info',$users,'',200);
         } catch (Exception $e) {
             return $this->formatAsJson(true,'An error occurred', $e->getMessage(),'',500);
         }
@@ -109,9 +131,9 @@ class UsersController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy($id) //ban user
     {
-        //
+       return $lastId = User::latest()->first()->id;
     }
 
     public function formatAsJson($status, $message='',$data=[],$meta='',$status_code){

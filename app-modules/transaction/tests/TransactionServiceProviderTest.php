@@ -7,25 +7,14 @@ use SebastianBergmann\Environment\Console;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
-class AdminServiceProviderTest extends TestCase
+class TransactionServiceProviderTest extends TestCase
 {
     /**
      * @test
      */
-	public function can_see_all_users()
+	public function can_do_assert_as_admin()
 	{
         $response = $this->get('/api/v1/users');
         $response->assertStatus(200);
     }
-
-    /**
-     * @test
-    */
-      public function can_admin_view_all_transactions()
-      {
-        $response = $this->get('/api/v1/transactions');
-
-        $response->assertStatus(200);
-
-      }
 }

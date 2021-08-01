@@ -33,9 +33,9 @@ class UserTest extends TestCase
      */
     public function can_display_users_by_id()
     {
+        $lastId = User::latest()->first()->id;
+        $response = $this->json('GET',`/api/v1/users/$lastId`);
         
-        $response = $this->json('GET','/api/v1/users/2');
-
         $response->assertJson(['status' => true]);
         $response->assertStatus(200);
     }
@@ -45,8 +45,8 @@ class UserTest extends TestCase
 
     public function can_create_user(){
         $new_user = [
-            "first_name" => "Ikenna",
-            "last_name" => "Igbokwe",
+            "first_name" => "Junior",
+            "last_name" => "Aka-Igbokwe",
             "phone" => "08131361241",
             "email" => "igbokwelaurence@gmail.com",
             "pin" => "8289",

@@ -5,8 +5,8 @@ use Modules\User\Http\Controllers\UsersController;
 
 Route::prefix('api/v1')->group(function () {
     // Route::get('/users/create', [UsersController::class, 'create'])->name('users.create');
-    Route::get('/users', [UsersController::class, 'index'])->name('users.index');
     Route::post('/users', [UsersController::class, 'store'])->name('users.store');
+    Route::get('/users', [UsersController::class, 'index'])->name('users.index');
     Route::delete('/users/{user}', [UsersController::class, 'destroy'])->name('users.destroy');
     Route::get('/users/{id}', [UsersController::class, 'show'])->name('users.show');
     // Route::get('/users/{user}/edit', [UsersController::class, 'edit'])->name('users.edit');

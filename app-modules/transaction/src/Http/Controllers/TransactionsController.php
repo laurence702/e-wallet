@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Modules\User\Models\User;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Hash;
 use Modules\Transaction\Models\Transaction;
 
 class TransactionsController extends Controller
@@ -19,7 +20,7 @@ class TransactionsController extends Controller
     public function index(Request $request)
     {
         try {
-            $transactions = isset($request->status) ? 
+            $transactions = ($request->has('status')) ? 
                 Transaction::where('status',$request->status)->get()->load(['sender','recipient']) : 
                 Transaction::get()->load(['sender','recipient']);
             if(count($transactions) == 0){ 
@@ -49,6 +50,19 @@ class TransactionsController extends Controller
      */
     public function store(Request $request) //create new transaction
     {
+        //ensure user cant transfer to himself to avoid fraud
+        if($request->sender_id === $request->receiver_id){
+            return $this->formatAsJson(false,'Cant transfer to self, you will be blocked after 5 attempts', [],'please contact support',402);
+        }
+        $sender = $this->getUserById($request->sender_id);
+        if($sender->verified !== 'true'){
+            return $this->formatAsJson(false,'Unverfied Users cant make transfers', [],'please contact support',402);
+        }
+        if (!Hash::check($request->input('pin'), $sender->pin_hash)) {
+            // The old password matches the hash in the database
+            return $this->formatAsJson(false,'wrong pin,please check email for pin or contact support for help',[],'',401);
+        }
+       
        try {
            if(!$this->checkIfSenderBalanceIsSufficient($request->sender_id,$request->transaction_amount)){
                 return $this->formatAsJson(false,'Balance is insufficient', [],'',402);

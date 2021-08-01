@@ -2,6 +2,7 @@
 
 namespace Modules\User\Models;
 
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Database\Eloquent\Model;
 use Modules\Transaction\Models\Transaction;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -22,13 +23,39 @@ class User extends Model
         'account_balance',
         'pin',
         'verified',
-        'account_balance'
+        'account_balance',
+        'pin_hash',
     ];
 
     protected $hidden = [
-        'pin',
+        'pin','pin_hash'
     ];
+    const pin = 'pin';
+    const pin_hash= 'pin_hash';
 
+    protected static function boot(){
+        parent::boot();
+        self::creating(function ($model){
+            $r= (int)random_int(1001,99998);
+            $model->{self::pin} = $r;
+            $model->{self::pin_hash} = Hash::make($r);
+
+        });
+    }
+
+    protected $columns = ['pin']; // add all columns from you table
+
+    public function scopeExclude($query, $value = []) 
+    {
+        return $query->select(array_diff($this->columns, (array) $value));
+    }
+   
+    // public static $registerRules = [
+    //     'last_name' => 'required',
+    //     'first_name' => 'required',
+    //     'email' => 'required|email|unique:users',
+    //     'phone_number' => 'required|phone_number|unique:users',
+    // ];
     /**
      * Get the user that owns the Transaction
      *

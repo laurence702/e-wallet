@@ -2,14 +2,15 @@
 
 use Illuminate\Support\Str;
 
-$url = parse_url(getenv("DATABASE_URL"));
-$host = !empty($url["host"]) ? $url["host"] : "";
-$username = !empty($url["user"]) ? $url["user"] : "";
-$password = !empty($url["pass"]) ? $url["pass"] : "";
-$database = substr($url["path"], 1);
+// $url = parse_url(getenv("DATABASE_URL"));
+// $host = !empty($url["host"]) ? $url["host"] : "";
+// $username = !empty($url["user"]) ? $url["user"] : "";
+// $password = !empty($url["pass"]) ? $url["pass"] : "";
+// $database = substr($url["path"], 1);
 
 /*
 postgres://<username>:<password>@<host>:<port>/<dbname>
+postgres://ncbjnukuantiad:9cfaa3574e1c981c2693d3a2a87e269dffa95d1ca0ba966784cae8af07b3f851@ec2-34-193-113-223.compute-1.amazonaws.com:5432/dfl4doqr7rpu0m
 */
 
 return [
@@ -25,8 +26,9 @@ return [
     |
     */
 
-    'default' => 'pgsql',
-    //'default' => env('DB_CONNECTION', 'mysql'),
+    //'default' => 'pgsql',
+    'default' => env('DB_CONNECTION', 'mysql'),
+    //'default' => env('DB_TEST_CONNECTION', 'tdd'),
 
     /*
     |--------------------------------------------------------------------------
@@ -56,12 +58,12 @@ return [
         'tdd' => [
             'driver' => env('DB_TEST_DRIVER','mysql'),
             'url' => env('DATABASE_URL'),
-            'host' => env('DB_HOST', '127.0.0.1'),
-            'port' => env('DB_PORT', '3306'),
-            'database' => env('DB_DATABASE', 'forge'),
-            'username' => env('DB_USERNAME', 'forge'),
-            'password' => env('DB_PASSWORD', ''),
-            'unix_socket' => env('DB_SOCKET', ''),
+            'host' => env('DB_TEST_HOST', '127.0.0.1'),
+            'port' => env('DB_TEST_PORT', '3306'),
+            'database' => env('DB_TEST_DATABASE', 'forge'),
+            'username' => env('DB_TEST_USERNAME', 'forge'),
+            'password' => env('DB_TEST_PASSWORD', ''),
+            'unix_socket' => env('DB_TEST_SOCKET', ''),
             'charset' => 'utf8mb4',
             'collation' => 'utf8mb4_unicode_ci',
             'prefix' => '',
@@ -95,10 +97,10 @@ return [
 
         'pgsql' => [
             'driver' => 'pgsql',
-            'host'     => $host,
-            'database' => $database,
-            'username' => $username,
-            'password' => $password,
+            // 'host'     => $host,
+            // 'database' => $database,
+            // 'username' => $username,
+            // 'password' => $password,
             'charset' => 'utf8',
             'prefix' => '',
             'prefix_indexes' => true,
