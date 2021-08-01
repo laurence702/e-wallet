@@ -1,62 +1,151 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400"></a></p>
+# SuperWallet
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+[![PHPUnit](https://github.com/InterNACHI/modular/workflows/PHPUnit/badge.svg)](https://github.com/InterNACHI/modular/actions?query=workflow%3APHPUnit) [![Test Coverage](https://api.codeclimate.com/v1/badges/dd927802d52f4f75ea6c/test_coverage)](https://codeclimate.com/github/InterNACHI/modular/test_coverage)
 
-## About Laravel
+This `Mini Wallet` repo uses `InterNACHI/Modular`, a module system for Laravel applications. It uses
+[Composer path repositories](https://getcomposer.org/doc/05-repositories.md#path) for autoloading, 
+and [Laravel package discovery](https://laravel.com/docs/7.x/packages#package-discovery) for module
+initialization, and then provides minimal tooling to fill in any gaps.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+This project is as much a set of conventions as it is a package. The fundamental idea
+is that you can create “modules” in a separate `app-modules/` directory, which allows you to
+better organize large projects. These modules use the existing 
+[Laravel package system](https://laravel.com/docs/7.x/packages), and follow existing Laravel
+conventions.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- [Walkthrough Video](#walkthrough-video)
+- [Installation](#installation)
+- [Usage](#usage)
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Walkthrough Video
 
-## Learning Laravel
+[![Intro video](https://embed-ssl.wistia.com/deliveries/98ebc7e01537a644df2d3af93d928257.jpg?image_crop_resized=1600x900&image_play_button=true&image_play_button_size=2x&image_play_button_color=1e71e7e0)](https://internachi.wistia.com/medias/pivaxithl7?wvideo=pivaxithl7)
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## Installation
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 1500 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+To get started after installing your laravel application, run:
 
-## Laravel Sponsors
+```shell script
+composer require internachi/modular
+``` 
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+Laravel will auto-discover the package and everything will be automatically set up for you.
 
-### Premium Partners
+### Publish the config
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
+While not required, it's highly recommended that you customize your default namespace
+for modules. By default, this is set to `Modules\`, which works just fine but makes it
+harder to extract your module to a separate package should you ever choose to.
 
-## Contributing
+We recommend configuring a organization namespace (we use `"InterNACHI"`, for example).
+To do this, you'll need to publish the package config:
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```shell script
+php artisan vendor:publish --tag=modular-config
+```
 
-## Code of Conduct
+### Create a module
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Next, let's create a module:
 
-## Security Vulnerabilities
+```shell script
+php artisan make:module my-module 
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Modular will scaffold up a new module for you:
 
-## License
+```
+app-modules/
+  my-module/
+    composer.json
+    src/
+    tests/
+    routes/
+    resources/
+    database/
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+It will also add two new entries to your app's `composer.json` file. The first entry registers
+`./app-modules/my-module/` as a [path repository](https://getcomposer.org/doc/05-repositories.md#path),
+and the second requires `modules/my-module:*` (like any other Composer dependency).
+
+Modular will then remind you to perform a Composer update, so let's do that now:
+
+```shell script
+composer update modules/my-module
+```
+
+### Optional: Config synchronization
+
+You can run the sync command to make sure that your project is set up
+for module support:
+
+```shell script
+php artisan modules:sync
+```
+
+This will add a `Modules` test suite to your `phpunit.xml` file (if one exists)
+and update your [PhpStorm Laravel plugin](https://plugins.jetbrains.com/plugin/7532-laravel)
+configuration (if it exists) to properly find your module's views.
+
+It is safe to run this command at any time, as it will only add missing configurations.
+You may even want to add it to your `post-autoload-dump` scripts in your application's
+`composer.json` file.
+
+## Usage
+
+All modules follow existing Laravel conventions, and auto-discovery 
+should work as expected in most cases:
+
+- Commands are auto-registered with Artisan
+- Migrations will be run by the Migrator
+- Factories are auto-loaded for `factory()`
+- Policies are auto-discovered for your Models
+
+There is **currently one exception**:
+
+- [Event discovery](https://laravel.com/docs/7.x/events#event-discovery) (which is optional 
+  and disabled by default in Laravel) is currently not supported.
+
+### Commands
+
+We provide a few helper commands:
+
+- `php artisan make:module`  — scaffold a new module
+- `php artisan modules:cache` — cache the loaded modules for slightly faster auto-discovery
+- `php artisan modules:clear` — clear the module cache
+- `php artisan modules:sync`  — update project configs (like `phpunit.xml`) with module settings
+- `php artisan modules:list`  — list all modules
+
+We also add a `--module=` option to most Laravel `make:` commands so that you can
+use all the existing tooling that you know. The commands themselves are exactly the
+same, which means you can use your [custom stubs](https://laravel.com/docs/7.x/artisan#stub-customization)
+and everything else Laravel provides:
+
+- `php artisan make:controller MyModuleController --module=my-module`
+- `php artisan make:command MyModuleCommand --module=my-module`
+- `php artisan make:component MyModuleComponent --module=my-module`
+- `php artisan make:channel MyModuleChannel --module=my-module`
+- `php artisan make:event MyModuleEvent --module=my-module`
+- `php artisan make:exception MyModuleException --module=my-module`
+- `php artisan make:factory MyModuleFactory --module=my-module`
+- `php artisan make:job MyModuleJob --module=my-module`
+- `php artisan make:listener MyModuleListener --module=my-module`
+- `php artisan make:mail MyModuleMail --module=my-module`
+- `php artisan make:middleware MyModuleMiddleware --module=my-module`
+- `php artisan make:model MyModule --module=my-module`
+- `php artisan make:notification MyModuleNotification --module=my-module`
+- `php artisan make:observer MyModuleObserver --module=my-module`
+- `php artisan make:policy MyModulePolicy --module=my-module`
+- `php artisan make:provider MyModuleProvider --module=my-module`
+- `php artisan make:request MyModuleRequest --module=my-module`
+- `php artisan make:resource MyModule --module=my-module`
+- `php artisan make:rule MyModuleRule --module=my-module`
+- `php artisan make:seeder MyModuleSeeder --module=my-module`
+- `php artisan make:test MyModuleTest --module=my-module`
+
+
+-- to create a test database, you can make a get request to the route '/api/create-test-database'
+-- To run test, use 'php artisan test', this project is already configured to use test database for all your testing
+
+-- P.S This is open source and pull requests are welcome, but please make sure you adhere to the module system :)
