@@ -13,7 +13,7 @@ class SetUpUserModule extends Migration
 			$table->string('last_name', 50);
 			$table->string('phone', 100)->nullable();
 			$table->string('email', 100)->nullable();
-			// $table->string('pin', 20)->unique();
+			$table->string('pin', 20)->unique();
 			$table->boolean('verified')->nullable()->default(0);
 			$table->double('account_balance', 8, 2)->nullable()->default(00.000000);
 			$table->timestamps();
