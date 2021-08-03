@@ -59,7 +59,6 @@ class TransactionsController extends Controller
             return $this->formatAsJson(false,'Unverfied Users cant make transfers', [],'please contact support',402);
         }
         if (!Hash::check($request->input('pin'), $sender->pin_hash)) {
-            // The old password matches the hash in the database
             return $this->formatAsJson(false,'wrong pin,please check email for pin or contact support for help',[],'',401);
         }
        

@@ -19,7 +19,7 @@ class MakePinUniqueForUsers extends Migration
 
         Schema::table('users', function (Blueprint $table) {
          
-            $table->integer('pin')->after('account_balance');
+            $table->integer('pin')->after('account_balance')->nullable();
             $table->string('pin_hash')->after('pin');
         });
     }
