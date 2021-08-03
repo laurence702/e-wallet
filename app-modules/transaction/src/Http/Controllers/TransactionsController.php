@@ -9,9 +9,13 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Modules\Transaction\Models\Transaction;
+use Modules\Transaction\Http\Services\TransactionServices;
 
 class TransactionsController extends Controller
 {
+    public function __construct(TransactionServices $transactionServices){
+        $this->transactionServices = $transactionServices;
+    }
     /**
      * Display a listing of the resource.
      *
@@ -19,17 +23,7 @@ class TransactionsController extends Controller
      */
     public function index(Request $request)
     {
-        try {
-            $transactions = ($request->has('status')) ? 
-                Transaction::where('status',$request->status)->get()->load(['sender','recipient']) : 
-                Transaction::get()->load(['sender','recipient']);
-            if(count($transactions) == 0){ 
-                return $this->formatAsJson(true,'No transaction created','','',404); 
-            }
-            return $this->formatAsJson(true,'List of all transactions',$transactions,'',200);
-        } catch (Exception $e) {
-            return $this->formatAsJson(true,'An error occurred', $e->getMessage(),'',500);
-        }
+        return $this->transactionServices->getAll();
     }
 
     /**
@@ -50,55 +44,7 @@ class TransactionsController extends Controller
      */
     public function store(Request $request) //create new transaction
     {
-        //ensure user cant transfer to himself to avoid fraud
-        if($request->sender_id === $request->receiver_id){
-            return $this->formatAsJson(false,'Cant transfer to self, you will be blocked after 5 attempts', [],'please contact support',402);
-        }
-        $sender = $this->getUserById($request->sender_id);
-        if($sender->verified !== 'true'){
-            return $this->formatAsJson(false,'Unverfied Users cant make transfers', [],'please contact support',402);
-        }
-        if (!Hash::check($request->input('pin'), $sender->pin_hash)) {
-            return $this->formatAsJson(false,'wrong pin,please check email for pin or contact support for help',[],'',401);
-        }
-       
-       try {
-           if(!$this->checkIfSenderBalanceIsSufficient($request->sender_id,$request->transaction_amount)){
-                return $this->formatAsJson(false,'Balance is insufficient', [],'',402);
-           }
-            DB::beginTransaction();
-            $sent = $this->debitSender($request->sender_id, $request->transaction_amount); //debit the sender
-            $received = $this->creditReceiver($request->receiver_id, $request->transaction_amount); //then credit the receiver
-            if($sent && $received){
-                $newTransaction = Transaction::create($request->all()); //then save it to transaction history
-                DB::commit();
-                if($newTransaction){
-                    return $this->formatAsJson(true,'Successful',Transaction::latest()->first(),'',200);
-                }
-            }
-            return $this->formatAsJson(false,'Failed',[],'',500);
-        } catch (Exception $e) {
-            return $this->formatAsJson(false,'Transaction failed', [],$e->getMessage(),500);
-        }
-    }
-
-    public function creditReceiver(int $receiver_id,  float $transaction_amount){
-        $receiverBalance = $this->getUserById($receiver_id)->account_balance;
-        $newBalance =  $receiverBalance +  $transaction_amount;
-        $query = User::where('id',$receiver_id)->update(['account_balance' => $newBalance]);
-        if($query){
-            DB::commit();
-            return true;
-        }
-    }
-    public function debitSender(int $sender_id,  float $transaction_amount){
-        $senderBalance = $this->getUserById($sender_id)->account_balance;
-        $newBalance = $senderBalance -  $transaction_amount;
-        $query = User::where('id',$sender_id)->update(['account_balance' => $newBalance]);
-        if($query){
-            DB::commit();
-            return true;
-        }
+        return $this->transactionServices->initiateTransaction($request);
     }
 
     /**
@@ -109,7 +55,7 @@ class TransactionsController extends Controller
      */
     public function show($id)
     {
-        //
+        return $this->transactionServices->showTransactionById($id);
     }
 
     /**
@@ -141,34 +87,9 @@ class TransactionsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy($id) //only superadmin can use this feature, guarded by middleware
     {
-        //
+        return $this->transactionServices->deleteTransaction($id);
     }
-
-    public function getUserById($user_id) {
-        $user = User::where('id', $user_id)->first();
-        if($user){
-            return $user;
-        }
-        return false;
-       
-    }
-
-    public function checkIfSenderBalanceIsSufficient(int $sender_id, float $transaction_amount){
-         $userBalance = $this->getUserById($sender_id)->account_balance;
-         if($userBalance < $transaction_amount){
-             return (bool)0;
-         }
-         return true;
-    }
-
-    public function formatAsJson($status, $message='',$data=[],$meta='',$status_code){
-        return response()->json([
-            'status'=> $status,
-            'message'=> $message,
-            'data'=> $data,
-            'meta'=>$meta
-        ],$status_code);
-    }
+ 
 }

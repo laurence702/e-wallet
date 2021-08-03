@@ -7,15 +7,13 @@ class SetUpAdminModule extends Migration
 {
 	public function up()
 	{
-		// Schema::create('admin', function(Blueprint $table) {
-		// 	$table->bigIncrements('id');
-		// 	$table->timestamps();
-		// 	$table->softDeletes();
-		// });
+		Schema::create('admins', function(Blueprint $table) {
+		
+		});
 	}
 	
 	public function down()
 	{
-		// Schema::dropIfExists('admin');
+		//Schema::dropIfExists('admins');
 	}
 }
